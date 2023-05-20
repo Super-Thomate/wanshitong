@@ -2,8 +2,8 @@
 const fs = require('node:fs') ;
 const path = require('node:path');
 // Require Database
-const Sequelize = require('sequelize');
-const {Personnage} = require('./dbObjects.js');
+// const Sequelize = require('sequelize');
+const {Personnage, Item, Inventory, Availability} = require('./dbObjects.js');
 // Require Discord
 const { Client, Events, GatewayIntentBits, Collection } = require('discord.js');
 const config = require('./config.json');
@@ -17,29 +17,6 @@ const intents = [
   GatewayIntentBits.GuildMembers,
 ] ;
 const client = new Client({ intents });
-
-// Initialize connections
-const sequelize = new Sequelize(config.database, config.user, config.password, {
-	host: config.host,
-	dialect: 'postgresql',
-	logging: false,
-});
-
-const Personnage = sequelize.define('personnage', {
-  id:{
-    type: Sequelize.INTEGER,
-    unique: true,
-    autoIncrement: true,
-    primaryKey: true
-  },
-  serie: Sequelize.STRING,
-  name: Sequelize.STRING,
-  image: Sequelize.STRING,
-  rarity: Sequelize.INTEGER
-}, {
-  timestamps: false,
-});
-
 
 client.commands = new Collection();
 
