@@ -1,3 +1,6 @@
+const {Blacklist} = require('../dbObjects.js');
+const {Op} = require('sequelize');
+
 module.exports = (client) => {
 
   /*
@@ -412,9 +415,14 @@ module.exports = (client) => {
     }) ;
     return isIt ;
   }
-  client.isBlackList = async (member, type) => {
-    const [rows, fields] = await client.connection.promise().query ("select count(*) as ban from wanshitong.blacklist where user_id=? and guild_id=? and type=?", [member.id, member.guild.id, type]) ;
-    return (rows[0].ban != 0) ;
+  client.isBlackList = async (member, command) => {
+    const user = await Blacklist.findOne({where: {[Op.and]: [
+      {user_id: member.id},
+      {guild_id: member.guild.id},
+      {command: command}
+    ]}});
+    console.log (user) ;
+    return user !== null ;
   }
 
   client.populateMaxItem = async (guild_id) => {
