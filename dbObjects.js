@@ -9,6 +9,9 @@ const sequelize = new Sequelize(config.database, config.user, config.password, {
 });
 
 const Personnage = require('./models/Personnage.js')(sequelize, Sequelize.DataTypes);
+const Item = require('./models/Item.js')(sequelize, Sequelize.DataTypes);
+const Inventory = require('./models/Inventory.js')(sequelize, Sequelize.DataTypes);
+const Availability = require('./models/Availability.js')(sequelize, Sequelize.DataTypes);
 
 // UserItems.belongsTo(CurrencyShop, { foreignKey: 'item_id', as: 'item' });
 /*
@@ -37,4 +40,4 @@ Reflect.defineProperty(Personnage.prototype, 'getItems', {
 	},
 });
 */
-module.exports = { Personnage };
+module.exports = { Personnage, Item, Inventory, Availability };
