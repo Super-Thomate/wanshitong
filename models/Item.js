@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     name: DataTypes.STRING,
     rarity: DataTypes.INTEGER,
-    character_id: DataTypes.INTEGER
+    personnageId: DataTypes.INTEGER
   }, {
     timestamps: false,
   });

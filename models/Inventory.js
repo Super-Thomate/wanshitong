@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BIGINT,
       primaryKey: true
     },
-    item_id: {
+    itemId: {
       type: DataTypes.INTEGER,
       primaryKey: true
     },

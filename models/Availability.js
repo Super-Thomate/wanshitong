@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
 	return sequelize.define('availability', {
-    character_id: {
+    personnageId: {
       type: DataTypes.INTEGER,
       primareyKey: true
     },

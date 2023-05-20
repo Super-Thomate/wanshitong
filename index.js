@@ -17,6 +17,8 @@ const intents = [
   GatewayIntentBits.GuildMembers,
 ] ;
 const client = new Client({ intents });
+// Require usefull methods
+require("./modules/functions.js")(client);
 
 client.commands = new Collection();
 

@@ -42,10 +42,10 @@ fs.createReadStream('wst.csv')
       for (const key in datas) {
         const data = datas [key];
         personnages.push(Personnage.upsert({serie: data.set, name: data.name, image: data.image, rarity: data.rarity})) ;
-        items.push(Item.upsert({name: data.itemCommon, rarity: 1, character_id: data.current})) ;
-        items.push(Item.upsert({name: data.itemUncommon, rarity: 2, character_id: data.current})) ;
-        items.push(Item.upsert({name: data.itemRare, rarity: 3, character_id: data.current})) ;
-        items.push(Item.upsert({name: data.itemEpic, rarity: 4, character_id: data.current})) ;
+        items.push(Item.upsert({name: data.itemCommon, rarity: 1, personnageId: data.current})) ;
+        items.push(Item.upsert({name: data.itemUncommon, rarity: 2, personnageId: data.current})) ;
+        items.push(Item.upsert({name: data.itemRare, rarity: 3, personnageId: data.current})) ;
+        items.push(Item.upsert({name: data.itemEpic, rarity: 4, personnageId: data.current})) ;
       }
     
       await Promise.all(personnages);
