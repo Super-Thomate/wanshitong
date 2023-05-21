@@ -15,6 +15,7 @@ const Item = require('./models/Item.js')(sequelize, Sequelize.DataTypes);
 const Inventory = require('./models/Inventory.js')(sequelize, Sequelize.DataTypes);
 const Availability = require('./models/Availability.js')(sequelize, Sequelize.DataTypes);
 const Blacklist = require('./models/Blacklist.js')(sequelize, Sequelize.DataTypes);
+const Configuration = require('./models/Configuration.js')(sequelize, Sequelize.DataTypes);
 
 const force = process.argv.includes('--force') || process.argv.includes('-f');
 const datas = [] ;

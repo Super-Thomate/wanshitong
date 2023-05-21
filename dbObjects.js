@@ -13,6 +13,7 @@ const Item = require('./models/Item.js')(sequelize, Sequelize.DataTypes);
 const Inventory = require('./models/Inventory.js')(sequelize, Sequelize.DataTypes);
 const Availability = require('./models/Availability.js')(sequelize, Sequelize.DataTypes);
 const Blacklist = require('./models/Blacklist.js')(sequelize, Sequelize.DataTypes);
+const Configuration = require('./models/Configuration.js')(sequelize, Sequelize.DataTypes);
 
 Personnage.hasMany(Item);
 Item.belongsTo(Personnage);
@@ -44,4 +45,4 @@ Reflect.defineProperty(Personnage.prototype, 'getItems', {
 	},
 });
 */
-module.exports = { Personnage, Item, Inventory, Availability, Blacklist };
+module.exports = { Personnage, Item, Inventory, Availability, Blacklist, Configuration };

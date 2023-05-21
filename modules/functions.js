@@ -220,7 +220,7 @@ module.exports = (client) => {
   // These 2 process methods will catch exceptions and give *more details* about the error and stack trace.
   process.on("uncaughtException", (err) => {
     const errorMsg = err.stack.replace(new RegExp(`${__dirname}/`, "g"), "./");
-    client.logger.error(`Uncaught Exception: ${errorMsg}`);
+    // client.logger.error(`Uncaught Exception: ${errorMsg}`);
     console.error(err);
     // Always best practice to let the code crash on uncaught exceptions. 
     // Because you should be catching them anyway.
@@ -415,6 +415,7 @@ module.exports = (client) => {
     }) ;
     return isIt ;
   }
+  
   client.isBlackList = async (member, command) => {
     const user = await Blacklist.findOne({where: {[Op.and]: [
       {user_id: member.id},
