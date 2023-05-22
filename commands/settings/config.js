@@ -1,193 +1,316 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType } = require('discord.js');
 const {Configuration} = require('../../dbObjects.js');
 const { Op } = require("sequelize");
 
 const configurationFiels = {
   'question': 'Magic 8 Ball',
-  'occuranceDrop': 'Character drop percentage',
-  'roleComplete': 'Role gave when full inventory',
-  'dropChannel': 'Channel for game',
-  'claimTime': 'Time to claim an item (in ms)',
-  'characterRate': 'Rate for character spawn',
-  'itemRate': 'Rate for item spawn',
-  'commandClaim': 'Commands to claim an item',
+  'occurancedrop': 'Character drop percentage',
+  'rolecomplete': 'Role to give when the game is completed',
+  'dropchannel': 'Text channel for the game',
+  'claimtime': 'Time to claim an item (in ms)',
+  'characterrate': 'Rate for character spawn',
+  'itemrate': 'Rate for item spawn',
+  'commandclaim': 'Commands to claim an item',
 } ;
 
 const data = new SlashCommandBuilder()
     .setName('config')
     .setDescription('Manage game configuration.')
-    .addStringOption(option =>
-      option.setName('edit')
-        .setDescription('Edit a field')
-        .setRequired(false)
-        .addChoices(
-          { name: configurationFiels['question'], value: 'question' },
-          { name: configurationFiels['occuranceDrop'], value: 'occuranceDrop' },
-          { name: configurationFiels['roleComplete'], value: 'roleComplete' },
-          { name: configurationFiels['dropChannel'], value: 'dropChannel' },
-          { name: configurationFiels['claimTime'], value: 'claimTime' },
-          { name: configurationFiels['characterRate'], value: 'characterRate' },
-          { name: configurationFiels['itemRate'], value: 'itemRate' },
-          { name: configurationFiels['commandClaim'], value: 'commandClaim' },
+    .addSubcommand(subcommand =>
+      subcommand
+        .setName('list')
+        .setDescription('List all configuration')
+    )
+    .addSubcommand(subcommand =>
+      subcommand
+        .setName('question')
+        .setDescription(configurationFiels['question'])
+        .addBooleanOption(option =>
+          option
+            .setName('enable')
+            .setDescription(`Enable or not the ${configurationFiels['question']}`)
+            .setRequired(true)
+        )
+    )
+    .addSubcommand(subcommand =>
+      subcommand
+        .setName('occurancedrop')
+        .setDescription(configurationFiels['occurancedrop'])
+        .addNumberOption(option =>
+          option
+            .setName('percentage')
+            .setDescription('A number between 0 and 100')
+            .setMaxValue(100)
+            .setMinValue(0)
+            .setRequired(true)
+        )
+    )
+    .addSubcommand(subcommand =>
+      subcommand
+        .setName('rolecomplete')
+        .setDescription(configurationFiels['rolecomplete'])
+        .addRoleOption(option =>
+          option
+            .setName('role')
+            .setDescription('A valid role')
+            .setRequired(true)
+        )
+    )
+    .addSubcommand(subcommand =>
+      subcommand
+        .setName('dropchannel')
+        .setDescription(configurationFiels['dropchannel'])
+        .addChannelOption(option => 
+          option
+            .setName('channel')
+            .setDescription('A text channel')
+            .addChannelTypes(ChannelType.GuildText)
+            .setRequired(true)
+        )
+    )
+    .addSubcommand(subcommand =>
+      subcommand
+        .setName('claimtime')
+        .setDescription(configurationFiels['claimtime'])
+        .addIntegerOption(option =>
+          option
+            .setName('time')
+            .setDescription('An integer greater than 0')
+            .setMinValue(0)
+            .setRequired(true)
+        )
+    )
+    .addSubcommand(subcommand =>
+      subcommand
+      .setName('characterrate')
+      .setDescription(configurationFiels['characterrate'])
+      .addStringOption(option =>
+        option
+          .setName('rarity')
+          .setDescription('Rarity')
+          .setRequired(true)
+          .addChoices(
+            {name: 'high', value: 'high'},
+            {name: 'regular', value: 'regular'},
+            {name: 'low', value: 'low'},
+            {name: 'event', value: 'event'},
+          )
+      )
+      .addNumberOption(option =>
+        option
+          .setName('percentage')
+          .setDescription('A number between 0 and 100')
+          .setRequired(true)
+          .setMaxValue(100)
+          .setMinValue(0)
+      )
+    )
+    .addSubcommand(subcommand =>
+      subcommand
+      .setName('itemrate')
+      .setDescription(configurationFiels['itemrate'])
+      .addStringOption(option =>
+        option
+          .setName('rarity')
+          .setDescription('Rarity')
+          .setRequired(true)
+          .addChoices(
+            {name: 'common', value: 'common'},
+            {name: 'uncommon', value: 'uncommon'},
+            {name: 'rare', value: 'rare'},
+            {name: 'epic', value: 'epic'},
+          )
+      )
+      .addNumberOption(option =>
+        option
+          .setName('percentage')
+          .setDescription('A number between 0 and 100')
+          .setRequired(true)
+          .setMaxValue(100)
+          .setMinValue(0)
+      )
+    )
+    .addSubcommand(subcommand => 
+      subcommand
+        .setName('commandclaim')
+        .setDescription(configurationFiels['commandclaim'])
+        .addStringOption(option =>
+          option
+            .setName('action')
+            .setDescription('Action')
+            .setRequired(true)
+            .addChoices(
+              {name: 'add', value: 'add'},
+              {name: 'delete', value: 'delete'},
+            )
+        )
+        .addStringOption(option =>
+          option
+            .setName('command')
+            .setDescription('Command')
+            .setRequired(true)
         )
     )
     ;
-
 
 module.exports = {
   data: data,
   async execute(interaction) {
     await interaction.deferReply();
     try {
-      const edit = interaction.options.getString('edit') ;
+      const edit = interaction.options.getSubcommand() ;
       // console.log (edit);
       const [configuration, created] = await Configuration.findOrCreate({
         where: {guild_id: interaction.guildId}
       });
       // console.log(configuration);
-      if (edit === null) {        
+      if (edit === 'list') {        
         const embedConfiguration = new EmbedBuilder()
           .setColor(0x7435F6)
           .setTitle(`Configuration`)
           .setDescription(`Game configuration for current guild.`)
           .addFields(
-            {name:'Magic 8 ball', value:`${configuration.question ? 'Enabled' : 'Disabled'}`},
-            {name:'Drop percentage', value:`${configuration.occuranceDrop}%`},
-            {name:'Role gave when full inventory', value:`${configuration.roleComplete !== null ? '' : ':x: Undefined' }`},
-            {name:'Channel for game', value:`${configuration.dropChannel !== null ? '' : ':x: Undefined' }`},
-            {name:'Time to claim an item (in ms)', value:`${configuration.claimTime} ms`},
-            {name:'Rate for character spawn', value:`High: ${configuration.characterRate.high}%\nRegular: ${configuration.characterRate.regular}%\nLow: ${configuration.characterRate.low}%\nEvent: ${configuration.characterRate.event}%`},
-            {name:'Rate for item spawn', value:`Common: ${configuration.itemRate.common}%\nUncommon: ${configuration.itemRate.uncommon}%\nRare: ${configuration.itemRate.rare}%\nEpic: ${configuration.itemRate.epic}%`},
+            {name: configurationFiels['question'], value:`${configuration.question ? 'Enabled' : 'Disabled'}`},
+            {name: configurationFiels['occurancedrop'], value:`${configuration.occuranceDrop}%`},
+            {name: configurationFiels['rolecomplete'], value:`${configuration.roleComplete !== null ? configuration.roleComplete : ':x: Undefined' }`},
+            {name: configurationFiels['dropchannel'], value:`${configuration.dropChannel !== null ? configuration.dropChannel : ':x: Undefined' }`},
+            {name: configurationFiels['claimtime'], value:`${configuration.claimTime} ms`},
+            {name: configurationFiels['characterrate'], value:`High: ${configuration.characterRate.high}%\nRegular: ${configuration.characterRate.regular}%\nLow: ${configuration.characterRate.low}%\nEvent: ${configuration.characterRate.event}%`},
+            {name: configurationFiels['itemrate'], value:`Common: ${configuration.itemRate.common}%\nUncommon: ${configuration.itemRate.uncommon}%\nRare: ${configuration.itemRate.rare}%\nEpic: ${configuration.itemRate.epic}%`},
           )
           ;
         const embedCommandClaim = new EmbedBuilder()
-          .setColor(0x7435F6)
-          .setTitle(`Commands to claim an item`)
+          .setColor(0x7435F6 )
+          .setTitle(configurationFiels['commandclaim'])
           .setDescription(`${configuration.commandClaim.join(', ').substring(0, 4096)}`)
           ;
         await interaction.editReply({
           embeds: [embedConfiguration, embedCommandClaim],
         });
+      } else 
+      if (edit === "question") {
+        const enabled = interaction.options.getBoolean('enable') ;
+        try {
+          configuration.update({question: enabled});
+          await interaction.editReply({
+            content: `Edit field *${configurationFiels[edit]}* `
+          });
+        } catch (e) {
+          console.error(e);
+          await interaction.editReply({ content: 'An error occured while updating configuration.question.' });
+        }
+      } else 
+      if (edit === "occurancedrop") {
+        const percentage = interaction.options.getNumber('percentage') ;
+        try {
+          configuration.update({occuranceDrop: percentage});
+          await interaction.editReply({
+            content: `Edit field *${configurationFiels[edit]}* `
+          });
+        } catch (e) {
+          console.error(e);
+          await interaction.editReply({ content: 'An error occured while updating configuration.occuranceDrop.' });
+        }
+      } else 
+      if (edit === "rolecomplete") {
+        const role = interaction.options.getRole('role') ;
+        // console.log(role) ;
+        try {
+          configuration.update({roleComplete: role.id});
+          await interaction.editReply({
+            content: `Edit field *${configurationFiels[edit]}*`
+          });
+        } catch (e) {
+          console.error(e);
+          await interaction.editReply({ content: 'An error occured while updating configuration.occuranceDrop.' });
+        }
+      } else
+      if (edit === "dropchannel") {
+        const channel = interaction.options.getChannel('channel') ;
+        // console.log(channel) ;
+        try {
+          configuration.update({dropChannel: channel.id});
+          await interaction.editReply({
+            content: `Edit field *${configurationFiels[edit]}*`
+          });
+        } catch (e) {
+          console.error(e);
+          await interaction.editReply({ content: 'An error occured while updating configuration.occuranceDrop.' });
+        }
+      } else
+      if (edit === "claimtime") {
+        const time = interaction.options.getInteger('time') ;
+        // console.log(time) ;
+        try {
+          configuration.update({claimTime: time});
+          await interaction.editReply({
+            content: `Edit field *${configurationFiels[edit]}*`
+          });
+        } catch (e) {
+          console.error(e);
+          await interaction.editReply({ content: 'An error occured while updating configuration.occuranceDrop.' });
+        }
+      } else
+      if (edit === "characterrate") {
+        const rarity = interaction.options.getString('rarity') ;
+        const percentage = interaction.options.getNumber('percentage') ;
+        const characterRate = configuration.characterRate ;
+        characterRate [rarity] = percentage ;
+        console.log(characterRate) ;
+        try {
+          // configuration.characterRate = characterRate ;
+          console.log(configuration.characterRate) ;
+          await configuration.update({characterRate: characterRate});
+          console.log(configuration.characterRate) ;
+          await interaction.editReply({
+            content: `Edit field *${configurationFiels[edit]}*`
+          });
+        } catch (e) {
+          console.error(e);
+          await interaction.editReply({ content: 'An error occured while updating configuration.occuranceDrop.' });
+        }
+      } else
+      if (edit === "itemrate") {
+        const rarity = interaction.options.getString('rarity') ;
+        const percentage = interaction.options.getNumber('percentage') ;
+        const itemRate = configuration.itemRate ;
+        itemRate [rarity] = percentage ;
+        // console.log(time) ;
+        try {
+          configuration.itemRate = itemRate ;
+          await configuration.save();
+          await interaction.editReply({
+            content: `Edit field *${configurationFiels[edit]}*`
+          });
+        } catch (e) {
+          console.error(e);
+          await interaction.editReply({ content: 'An error occured while updating configuration.occuranceDrop.' });
+        }
+      } else
+      if (edit === "commandclaim") {
+        const action = interaction.options.getString('action') ;
+        const command = interaction.options.getString('command') ;
+        var commandClaim = configuration.commandClaim ;
+        // console.log(time) ;
+        try {
+          if (action === 'delete') {
+            commandClaim = commandClaim.map(c => c !== command) ;
+          } else {
+            commandClaim.push(command) ;
+          }
+          configuration.commandClaim = commandClaim ;
+          await configuration.save();
+          await interaction.editReply({
+            content: `Edit field *${configurationFiels[edit]}*`
+          });
+        } catch (e) {
+          console.error(e);
+          await interaction.editReply({ content: 'An error occured while updating configuration.occuranceDrop.' });
+        }
       } else {
         await interaction.editReply({
-          content: `Edit field *${configurationFiels[edit]}* `
+          content: `Subcommand *${edit}* is not available. How did you get there ?`
         });
-        if (edit === "question") {
-          const enabled = new ButtonBuilder()
-            .setCustomId('enabled')
-            .setLabel('Enabled')
-            .setStyle(ButtonStyle.Success)
-            ;
-          const disabled = new ButtonBuilder()
-            .setCustomId('disabled')
-            .setLabel('Disabled')
-            .setStyle(ButtonStyle.Danger)
-            ;
-          const row = new ActionRowBuilder()
-            .addComponents(enabled, disabled)
-            ;
-          const response = await interaction.editReply({
-            content: `Do you wish to enable *${configurationFiels[edit]}* ?`,
-            components: [row]
-          });
-          const collectorFilter = i => i.user.id === interaction.user.id ;
-          try {
-            const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 60000 });
-            try {
-              configuration.update({question: confirmation.customId === 'enabled'});
-              await confirmation.update({ content: `*${configurationFiels[edit]}* ${confirmation.customId}.`, components: [] });
-            } catch (err) {
-              console.error(err) ;
-              await confirmation.update({ content: 'An error occured while updating configuration.', components: [] });
-            }
-          } catch (e) {
-            console.error(e);
-            await interaction.editReply({ content: 'Answer not received within 1 minute, cancelling.', components: [] });
-          }
-        } else 
-        if (edit === "occuranceDrop") {
-          await interaction.editReply({
-            content: `Enter the new value for *${configurationFiels[edit]}* **(must be a number between 0 and 100)**.`
-          });
-          const filter = m => m.author.id === interaction.user.id ;
-          const collector = interaction.channel.createMessageCollector({ filter, time: 60_000, idle:60_000, max: 1 });
-          try {
-            // console.log(collector) ;
-            collector.on('collect', m => {
-              // console.log(`Collected ${m.content}`);
-              const percentage = parseFloat(m.content);
-              if (isNaN(percentage)) {
-                collector.stop('wrong');
-              } else {
-                configuration.update({occuranceDrop: percentage});
-              }
-            });
-            collector.on('end', (collected, reason) => {
-              // console.log(collected.first().content) ;
-              if (reason === 'time') {
-                interaction.editReply({
-                  content: `Time out for *${configurationFiels[edit]}* after 1 minute.`
-                }) ;
-              } else if (reason === 'limit') {
-                interaction.editReply({
-                  content: `New value for *${configurationFiels[edit]}*: ${parseFloat(m.content)}%.`
-                }) ;
-              } else if (reason === 'wrong') {
-                interaction.editReply({
-                  content: `${collected.first().content} is not a valid argument.`
-                }) ;
-              } else {
-                // console.log(reason) ;
-                interaction.editReply({
-                  content: `Edit ended with unknown reason **${reason}**.`
-                }) ;
-              }
-              // .then(console.log)
-              // .catch(console.error)
-              ;
-              collected.first().delete().catch(console.error);
-            });
-          } catch (err) {
-            console.error (err) ;
-            await interaction.editReply({
-              content: `An error occured while editing *${configurationFiels[edit]}*.`
-            });
-          }
-        } else 
-        if (edit === "roleComplete") {
-          await interaction.editReply({
-            content: `Edit field *${configurationFiels[edit]}* SOON `
-          });
-        } else
-        if (edit === "dropChannel") {
-          await interaction.editReply({
-            content: `Edit field *${configurationFiels[edit]}* SOON `
-          });
-        } else
-        if (edit === "claimTime") {
-          await interaction.editReply({
-            content: `Edit field *${configurationFiels[edit]}* SOON `
-          });
-        } else
-        if (edit === "characterRate") {
-          await interaction.editReply({
-            content: `Edit field *${configurationFiels[edit]}* SOON `
-          });
-        } else
-        if (edit === "itemRate") {
-          await interaction.editReply({
-            content: `Edit field *${configurationFiels[edit]}* SOON `
-          });
-        } else
-        if (edit === "commandClaim") {
-          await interaction.editReply({
-            content: `Edit field *${configurationFiels[edit]}* SOON `
-          });
-        } else {
-          await interaction.editReply({
-            content: `Field *${edit}* is not available. How did you get there ?`
-          });
-        }
       }
     } catch (error) {
       console.error(error) ;
