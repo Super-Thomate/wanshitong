@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ChannelType } = require('discord.js');
 const {Configuration} = require('../../dbObjects.js');
 const { Op } = require("sequelize");
 
@@ -164,7 +164,9 @@ module.exports = {
         where: {guild_id: interaction.guildId}
       });
       // console.log(created);
-      if (edit === 'list') {        
+      if (edit === 'list') {      
+        const errorOnCharacterRate = 100 !== (configuration.characterRate.high + configuration.characterRate.regular + configuration.characterRate.low + configuration.characterRate.event) ;
+        const errorOnItemRate = 100 !== (configuration.itemRate.common + configuration.itemRate.uncommon + configuration.itemRate.rare + configuration.itemRate.epic) ;
         const embedConfiguration = new EmbedBuilder()
           .setColor(0x7435F6)
           .setTitle(`Configuration`)
@@ -175,8 +177,8 @@ module.exports = {
             {name: configurationFiels['rolecomplete'], value:`${configuration.roleComplete !== null ? configuration.roleComplete : ':x: Undefined' }`},
             {name: configurationFiels['dropchannel'], value:`${configuration.dropChannel !== null ? configuration.dropChannel : ':x: Undefined' }`},
             {name: configurationFiels['claimtime'], value:`${configuration.claimTime} ms`},
-            {name: configurationFiels['characterrate'], value:`High: ${configuration.characterRate.high}%\nRegular: ${configuration.characterRate.regular}%\nLow: ${configuration.characterRate.low}%\nEvent: ${configuration.characterRate.event}%`},
-            {name: configurationFiels['itemrate'], value:`Common: ${configuration.itemRate.common}%\nUncommon: ${configuration.itemRate.uncommon}%\nRare: ${configuration.itemRate.rare}%\nEpic: ${configuration.itemRate.epic}%`},
+            {name: configurationFiels['characterrate'], value:`High: ${configuration.characterRate.high}%\nRegular: ${configuration.characterRate.regular}%\nLow: ${configuration.characterRate.low}%\nEvent: ${configuration.characterRate.event}%${errorOnCharacterRate ? '\n**The rate does not add up to 100%, error might occur.**' : ''}`},
+            {name: configurationFiels['itemrate'], value:`Common: ${configuration.itemRate.common}%\nUncommon: ${configuration.itemRate.uncommon}%\nRare: ${configuration.itemRate.rare}%\nEpic: ${configuration.itemRate.epic}%${errorOnItemRate ? '\n**The rate does not add up to 100%, error might occur.**' : ''}`},
           )
           ;
         const embedCommandClaim = new EmbedBuilder()
