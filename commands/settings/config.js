@@ -163,7 +163,7 @@ module.exports = {
       const [configuration, created] = await Configuration.findOrCreate({
         where: {guild_id: interaction.guildId}
       });
-      // console.log(configuration);
+      // console.log(created);
       if (edit === 'list') {        
         const embedConfiguration = new EmbedBuilder()
           .setColor(0x7435F6)
@@ -254,14 +254,9 @@ module.exports = {
       if (edit === "characterrate") {
         const rarity = interaction.options.getString('rarity') ;
         const percentage = interaction.options.getNumber('percentage') ;
-        const characterRate = configuration.characterRate ;
-        characterRate [rarity] = percentage ;
-        console.log(characterRate) ;
         try {
-          // configuration.characterRate = characterRate ;
-          console.log(configuration.characterRate) ;
-          await configuration.update({characterRate: characterRate});
-          console.log(configuration.characterRate) ;
+          configuration.set(`characterRate.${rarity}`, percentage) ; // We need to update with the set method. FML
+          await configuration.save() ;
           await interaction.editReply({
             content: `Edit field *${configurationFiels[edit]}*`
           });
@@ -273,11 +268,8 @@ module.exports = {
       if (edit === "itemrate") {
         const rarity = interaction.options.getString('rarity') ;
         const percentage = interaction.options.getNumber('percentage') ;
-        const itemRate = configuration.itemRate ;
-        itemRate [rarity] = percentage ;
-        // console.log(time) ;
         try {
-          configuration.itemRate = itemRate ;
+          configuration.set(`itemRate.${rarity}`, percentage) ; // We need to update with the set method. FML
           await configuration.save();
           await interaction.editReply({
             content: `Edit field *${configurationFiels[edit]}*`
@@ -290,15 +282,13 @@ module.exports = {
       if (edit === "commandclaim") {
         const action = interaction.options.getString('action') ;
         const command = interaction.options.getString('command') ;
-        var commandClaim = configuration.commandClaim ;
-        // console.log(time) ;
         try {
           if (action === 'delete') {
-            commandClaim = commandClaim.map(c => c !== command) ;
+            configuration.commandClaim = configuration.commandClaim.map(c => c !== command) ;
           } else {
-            commandClaim.push(command) ;
+            configuration.commandClaim.push(command) ;
           }
-          configuration.commandClaim = commandClaim ;
+          configuration.changed('commandClaim', true); // We must tell it an array is updated. Wanker
           await configuration.save();
           await interaction.editReply({
             content: `Edit field *${configurationFiels[edit]}*`
