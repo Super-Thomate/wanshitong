@@ -343,6 +343,7 @@ module.exports = (client) => {
           const allItems = await Item.count({
             include: {
               model: Personnage,
+              where: {rarity: {[Op.not]: 4}}, // event excluded
               required: true,
               include: {
                 model: Availability,
@@ -436,12 +437,20 @@ module.exports = (client) => {
   }
 
   client.populateMaxItem = async (guildId) => {
-    client.connection.execute ("select count(*) as allItems from `item` as A, `character` as B, `availability` as C where A.characterId=B.id and C.characterId=B.id and C.is_available=1 and B.rarity<>4 and C.guildId="+guildId+";", (err, rows) => {
-      if (err) console.log ("err on function::populateMaxItem:",err) ;
-      if (rows && rows.length) {
-        client.maxItem [guildId] = rows [0].allItems ;
+    const allItems = await Item.count({
+      include: {
+        model: Personnage,
+        where: {rarity: {[Op.not]: 4}}, // event excluded
+        required: true,
+        include: {
+          model: Availability,
+          where: {[Op.and]: [{guildId: guildId}, {available: true}]},
+          as: 'availability',
+          required: true
+        }
       }
-    });
+    }) ;
+    client.maxItem [guildId] = allItems ;
   }
   
 };
