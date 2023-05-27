@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
 	return sequelize.define('configuration', {
-    guild_id: {
+    guildId: {
       type: DataTypes.BIGINT,
       primareyKey: true
     },

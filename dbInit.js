@@ -16,6 +16,14 @@ const Inventory = require('./models/Inventory.js')(sequelize, Sequelize.DataType
 const Availability = require('./models/Availability.js')(sequelize, Sequelize.DataTypes);
 const Blacklist = require('./models/Blacklist.js')(sequelize, Sequelize.DataTypes);
 const Configuration = require('./models/Configuration.js')(sequelize, Sequelize.DataTypes);
+const Leaderboard = require('./models/Leaderboard.js')(sequelize, Sequelize.DataTypes);
+
+
+Personnage.hasMany(Item);
+Item.belongsTo(Personnage);
+
+// Personnage.hasMany(Availability);
+// Availability.belongsTo(Personnage);
 
 const force = process.argv.includes('--force') || process.argv.includes('-f');
 const datas = [] ;
@@ -38,20 +46,26 @@ fs.createReadStream('wst.csv')
     console.log('CSV file successfully processed');
     console.log('Syncing database');
     sequelize.sync({ force }).then(async () => {
-      const personnages = [];
-      const items = [];
-      // console.log (datas.length)
-      for (const key in datas) {
-        const data = datas [key];
-        personnages.push(Personnage.upsert({serie: data.set, name: data.name, image: data.image, rarity: data.rarity})) ;
-        items.push(Item.upsert({name: data.itemCommon, rarity: 1, personnageId: data.current})) ;
-        items.push(Item.upsert({name: data.itemUncommon, rarity: 2, personnageId: data.current})) ;
-        items.push(Item.upsert({name: data.itemRare, rarity: 3, personnageId: data.current})) ;
-        items.push(Item.upsert({name: data.itemEpic, rarity: 4, personnageId: data.current})) ;
+      if (force) {
+        // console.log (datas.length)
+        for (const data of datas) {
+          // const data = datas [key];
+          // personnages.push(Personnage.upsert({serie: data.set, name: data.name, image: data.image, rarity: data.rarity})) ;
+          const [personnage, createdPersonnage] = await Personnage.upsert({serie: data.set, name: data.name, image: data.image, rarity: data.rarity}) ;
+          // console.log(personnage);
+          const [itemCommon, createdItemCommon] = await Item.upsert({name: data.itemCommon, rarity: 1, personnageId: personnage.id}, {include: Personnage}) ;
+          // console.log(itemCommon);
+          const [itemUncommon, createdItemUncommon] = await Item.upsert({name: data.itemUncommon, rarity: 2, personnageId: personnage.id}, {include: Personnage}) ;
+          // console.log(itemUncommon);
+          const [itemRare, createdItemRare] = await Item.upsert({name: data.itemRare, rarity: 3, personnageId: personnage.id}, {include: Personnage}) ;
+          // console.log(itemRare);
+          const [itemEpic, createdItemEpic] = await Item.upsert({name: data.itemEpic, rarity: 4, personnageId: personnage.id}, {include: Personnage}) ;
+          // console.log(itemEpic);
+        }
       }
     
-      await Promise.all(personnages);
-      await Promise.all(items);
+      // await Promise.all(personnages);
+      // await Promise.all(items);
       console.log('Database synced');
     
       sequelize.close();

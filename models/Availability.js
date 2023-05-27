@@ -1,14 +1,14 @@
 module.exports = (sequelize, DataTypes) => {
 	return sequelize.define('availability', {
-    personnageId: {
-      type: DataTypes.INTEGER,
-      primareyKey: true
-    },
-    guild_id: {
+    guildId: {
       type: DataTypes.BIGINT,
-      primareyKey: true
+      primaryKey: true
     },
-    available: DataTypes.BOOLEAN
+    available: DataTypes.BOOLEAN,
+    personnageId: {
+      type: DataTypes.BIGINT,
+      primaryKey: true
+    },
   }, {
     timestamps: false,
   });

@@ -14,9 +14,39 @@ const Inventory = require('./models/Inventory.js')(sequelize, Sequelize.DataType
 const Availability = require('./models/Availability.js')(sequelize, Sequelize.DataTypes);
 const Blacklist = require('./models/Blacklist.js')(sequelize, Sequelize.DataTypes);
 const Configuration = require('./models/Configuration.js')(sequelize, Sequelize.DataTypes);
+const Leaderboard = require('./models/Leaderboard.js')(sequelize, Sequelize.DataTypes);
 
 Personnage.hasMany(Item);
 Item.belongsTo(Personnage);
+
+Personnage.hasMany(Availability, {as: 'availability'});
+Availability.belongsTo(Personnage, {as: 'personnage'});
+
+Item.hasMany(Inventory, {as: 'inventory'});
+Inventory.belongsTo(Item, {as: 'item'});
+
+// Item.sync();
+// Availability.sync();
+// Personnage.sync();
+
+// Reflect.defineProperty(Personnage.prototype, 'getItems', {
+//   value: async (personnageId) => {
+//     // console.log (this);
+//     const userItems = await Item.findAll({
+//       where: { personnageId: personnageId },
+//     });
+//     return userItems ;
+//   },
+// });
+// Reflect.defineProperty(Personnage.prototype, 'getItemRarity', {
+//   value: async (personnageId, itemRarity) => {
+//     const item = await Item.findOne({
+//       where: {[Sequelize.Op.and]: [{personnageId: personnageId},{rarity: itemRarity}] },
+//     });
+//     return item ;
+//   },
+// });
+
 
 // UserItems.belongsTo(CurrencyShop, { foreignKey: 'item_id', as: 'item' });
 /*
@@ -45,4 +75,4 @@ Reflect.defineProperty(Personnage.prototype, 'getItems', {
 	},
 });
 */
-module.exports = { Personnage, Item, Inventory, Availability, Blacklist, Configuration };
+module.exports = { Personnage, Item, Inventory, Availability, Blacklist, Configuration, Leaderboard };

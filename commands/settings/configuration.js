@@ -14,8 +14,8 @@ const configurationFiels = {
 } ;
 
 const data = new SlashCommandBuilder()
-    .setName('config')
-    .setDescription('Manage game configuration.')
+    .setName('configuration')
+    .setDescription('Manage game configuration')
     .addSubcommand(subcommand =>
       subcommand
         .setName('list')
@@ -161,7 +161,7 @@ module.exports = {
       const edit = interaction.options.getSubcommand() ;
       // console.log (edit);
       const [configuration, created] = await Configuration.findOrCreate({
-        where: {guild_id: interaction.guildId}
+        where: {guildId: interaction.guildId}
       });
       // console.log(created);
       if (edit === 'list') {      

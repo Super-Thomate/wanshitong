@@ -99,14 +99,14 @@ module.exports = {
       // console.log(interaction.guildId)
       try {
         const already = await Blacklist.findOne({where: {[Op.and]: [
-          {user_id: user.id},
-          {guild_id: interaction.guildId},
+          {userId: user.id},
+          {guildId: interaction.guildId},
           {command: command}
         ]}}) ;
         if (already === null) {
           const blacklist = await Blacklist.create({
-            user_id: user.id,
-            guild_id: interaction.guildId,
+            userId: user.id,
+            guildId: interaction.guildId,
             command: command,
           }) ;
           // await blacklist.save();
@@ -122,8 +122,8 @@ module.exports = {
       const user = interaction.options.getUser('user') ;
       try {
         await Blacklist.destroy({where: {[Op.and]: [
-          {user_id: user.id},
-          {guild_id: interaction.guildId},
+          {userId: user.id},
+          {guildId: interaction.guildId},
           {command: command}
         ]}}) ;
         await interaction.editReply(`${user.username} is no more blacklisted from ${commandToString[command]}.`);
@@ -134,17 +134,17 @@ module.exports = {
     } else if (interaction.options.getSubcommand() === "list") {
       try {
         const all = await Blacklist.findAll({where: {[Op.and]: [
-          {guild_id: interaction.guildId},
+          {guildId: interaction.guildId},
           {command: command}
         ]}}) ;
         // console.log (all) ;
-        console.log(command);
+        // console.log(command);
         const messageContent = codeBlock ("asciidoc", 
         `= Blacklist ${commandToString[command]} =\n${
           all.length ?
           all.map(blacklist => {
-            const user = interaction.message.guild.members.cache.find (u => u.id === blacklist.user_id) ; 
-            return `* ${user !== null ? user.username : 'UNDEFINED'} (${blacklist.user_id})\n` ;  
+            const user = interaction.message.guild.members.cache.find (u => u.id === blacklist.userId) ; 
+            return `* ${user !== null ? user.username : 'UNDEFINED'} (${blacklist.userId})\n` ;  
           }).join('')
           : 'No result.'
         }`
@@ -159,8 +159,8 @@ module.exports = {
       const user = interaction.options.getUser('user') ;
       try {
         const blacklist = await Blacklist.findOne({where: {[Op.and]: [
-          {user_id: user.id},
-          {guild_id: interaction.guildId},
+          {userId: user.id},
+          {guildId: interaction.guildId},
           {command: command}
         ]}}) ;
         await interaction.editReply(`${user.username} is ${blacklist === null ? '**not** ' : ''}blacklisted from ${commandToString[command]}.`);

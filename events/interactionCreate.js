@@ -20,6 +20,10 @@ module.exports = {
           await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
         }
       }
-    }
+    } else if (interaction.isButton()) {
+			// respond to the button
+      // console.log ('Button clicked') ;
+      // console.log(`Clicked on ${interaction.customId}`);
+		}
   },
 };

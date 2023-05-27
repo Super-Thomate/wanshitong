@@ -4,19 +4,19 @@ const { Op } = require("sequelize");
 
 const data = new SlashCommandBuilder()
     .setName('find')
-    .setNameLocalizations({
-      fr: 'trouve',
-    })
+    // .setNameLocalizations({
+    //   fr: 'trouve',
+    // })
     .setDescription('Find a character or an item')
-    .setDescriptionLocalizations({
-      fr: 'Trouve un personnage ou un objet',
-    })
+    // .setDescriptionLocalizations({
+    //   fr: 'Trouve un personnage ou un objet',
+    // })
     .addStringOption(option =>
       option.setName('type')
         .setDescription('Select if you want to find a character or an item')
-        .setDescriptionLocalizations({
-          fr: 'Sélectionnez si vous désirez trouvez un personnage (character) ou un objet (item)',
-        })
+        // .setDescriptionLocalizations({
+        //   fr: 'Sélectionnez si vous désirez trouvez un personnage (character) ou un objet (item)',
+        // })
         .setRequired(true)
         .addChoices(
           { name: 'Character', value: 'character' },
@@ -25,13 +25,13 @@ const data = new SlashCommandBuilder()
     )
     .addStringOption(option =>
       option.setName('keyword')
-        .setNameLocalizations({
-          fr: 'mot-clé',
-        })
+        // .setNameLocalizations({
+        //   fr: 'mot-clé',
+        // })
         .setDescription('The keyword for the search')
-        .setDescriptionLocalizations({
-          fr: 'Le mot-clé pour la recherche',
-        })
+        // .setDescriptionLocalizations({
+        //   fr: 'Le mot-clé pour la recherche',
+        // })
         .setRequired(true)
     )
     ;

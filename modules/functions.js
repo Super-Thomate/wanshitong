@@ -1,5 +1,6 @@
-const {Blacklist} = require('../dbObjects.js');
-const {Op} = require('sequelize');
+const {Blacklist, Personnage, Item, Configuration, Availability, Inventory, Leaderboard} = require('../dbObjects.js');
+const {Op, where, col} = require('sequelize');
+const { EmbedBuilder } = require('discord.js');
 
 module.exports = (client) => {
 
@@ -28,135 +29,45 @@ module.exports = (client) => {
     return permlvl;
   };
 
-  /*
-  GUILD SETTINGS FUNCTION
+  // client.loadCommand = (commandName) => {
+  //   try {
+  //     client.logger.log(`Loading Command: ${commandName}`);
+  //     const props = require(`../commands/${commandName}`);
+  //     if (props.init) {
+  //       props.init(client);
+  //     }
+  //     client.commands.set(props.help.name, props);
+  //     props.conf.aliases.forEach(alias => {
+  //       client.aliases.set(alias, props.help.name);
+  //     });
+  //     return false;
+  //   } catch (e) {
+  //     return `Unable to load command ${commandName}: ${e}`;
+  //   }
+  // };
 
-  This function merges the default settings (from config.defaultSettings) with any
-  guild override you might have for particular guild. If no overrides are present,
-  the default settings are used.
-
-  */
-  
-  // THIS IS HERE BECAUSE SOME PEOPLE DELETE ALL THE GUILD SETTINGS
-  // And then they're stuck because the default settings are also gone.
-  // So if you do that, you're resetting your defaults. Congrats.
-  const defaultSettings = {
-    "prefix": "/",
-    "modLogChannel": "mod-log",
-    "modRole": "Moderator",
-    "adminRole": "Administrator",
-    "systemNotice": "true",
-    "welcomeChannel": "welcome",
-    "welcomeMessage": "Say hello to {{user}}, everyone! We all need a warm welcome sometimes :D",
-    "welcomeEnabled": "false",
-    "questionEnabled": "false",
-    // Everything for Minigame
-    "occuranceDrop": 10.0, // Drop rate of a character after a message
-    "roleComplete": "Renard-Esprit", // Role for completing the game
-    "toggleCommandTrigger": "false", // Toggle for whether or not a bot command will trigger the drop
-    "dropChannel": "library", // The channel where the bot will drop a character
-    "claimTime": 10000, // Time in ms to claim an item after character drop
-    "characterRate": {"high":25.0, "regular":25.0, "low":25.0, "event":25.0}, // Character drop rate depending on rarity
-    "itemRate": {"common":25.0, "uncommon":25.0, "rare":25.0, "epic":25.0}, // Item drop rate depending on rarity
-    "commandClaim": ["foo", "bar"] // Command word to claim
-  };
-
-  // getSettings merges the client defaults with the guild settings. guild settings in
-  // enmap should only have *unique* overrides that are different from defaults.
-  client.getSettings = (guild) => {
-    client.settings.ensure("default", defaultSettings);
-    if(!guild) return client.settings.get("default");
-    const guildConf = client.settings.get(guild.id) || {};
-    // This "..." thing is the "Spread Operator". It's awesome!
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax
-    return ({...client.settings.get("default"), ...guildConf});
-  };
-
-  /*
-  SINGLE-LINE AWAITMESSAGE
-
-  A simple way to grab a single reply, from the user that initiated
-  the command. Useful to get "precisions" on certain things...
-
-  USAGE
-
-  const response = await client.awaitReply(msg, "Favourite Color?");
-  msg.reply({content: `Oh, I really love ${response} too!`});
-
-  */
-  client.awaitReply = async (msg, question, limit = 60000) => {
-    const filter = m => m.author.id === msg.author.id;
-    await msg.channel.send({content: question});
-    try {
-      const collected = await msg.channel.awaitMessages({filter, max: 1, time: limit, errors: ["time"] });
-      return collected.first().content;
-    } catch (e) {
-      return false;
-    }
-  };
-
-
-  /*
-  MESSAGE CLEAN FUNCTION
-
-  "Clean" removes @everyone pings, as well as tokens, and makes code blocks
-  escaped so they're shown more easily. As a bonus it resolves promises
-  and stringifies objects!
-  This is mostly only used by the Eval and Exec commands.
-  */
-  client.clean = async (client, text) => {
-    if (text && text.constructor.name == "Promise")
-      text = await text;
-    if (typeof text !== "string")
-      text = require("util").inspect(text, {depth: 1});
-
-    text = text
-      .replace(/`/g, "`" + String.fromCharCode(8203))
-      .replace(/@/g, "@" + String.fromCharCode(8203))
-      .replace(client.token, "mfa.VkO_2G4Qv3T--NO--lWetW_tjND--TOKEN--QFTm6YGtzq9PH--4U--tG0");
-
-    return text;
-  };
-
-  client.loadCommand = (commandName) => {
-    try {
-      client.logger.log(`Loading Command: ${commandName}`);
-      const props = require(`../commands/${commandName}`);
-      if (props.init) {
-        props.init(client);
-      }
-      client.commands.set(props.help.name, props);
-      props.conf.aliases.forEach(alias => {
-        client.aliases.set(alias, props.help.name);
-      });
-      return false;
-    } catch (e) {
-      return `Unable to load command ${commandName}: ${e}`;
-    }
-  };
-
-  client.unloadCommand = async (commandName) => {
-    let command;
-    if (client.commands.has(commandName)) {
-      command = client.commands.get(commandName);
-    } else if (client.aliases.has(commandName)) {
-      command = client.commands.get(client.aliases.get(commandName));
-    }
-    if (!command) return `The command \`${commandName}\` doesn"t seem to exist, nor is it an alias. Try again!`;
+  // client.unloadCommand = async (commandName) => {
+  //   let command;
+  //   if (client.commands.has(commandName)) {
+  //     command = client.commands.get(commandName);
+  //   } else if (client.aliases.has(commandName)) {
+  //     command = client.commands.get(client.aliases.get(commandName));
+  //   }
+  //   if (!command) return `The command \`${commandName}\` doesn"t seem to exist, nor is it an alias. Try again!`;
     
-    if (command.shutdown) {
-      await command.shutdown(client);
-    }
-    const mod = require.cache[require.resolve(`../commands/${command.help.name}`)];
-    delete require.cache[require.resolve(`../commands/${command.help.name}.js`)];
-    for (let i = 0; i < mod.parent.children.length; i++) {
-      if (mod.parent.children[i] === mod) {
-        mod.parent.children.splice(i, 1);
-        break;
-      }
-    }
-    return false;
-  };
+  //   if (command.shutdown) {
+  //     await command.shutdown(client);
+  //   }
+  //   const mod = require.cache[require.resolve(`../commands/${command.help.name}`)];
+  //   delete require.cache[require.resolve(`../commands/${command.help.name}.js`)];
+  //   for (let i = 0; i < mod.parent.children.length; i++) {
+  //     if (mod.parent.children[i] === mod) {
+  //       mod.parent.children.splice(i, 1);
+  //       break;
+  //     }
+  //   }
+  //   return false;
+  // };
 
   /* MISCELANEOUS NON-CRITICAL FUNCTIONS */
   
@@ -221,23 +132,66 @@ module.exports = (client) => {
   process.on("uncaughtException", (err) => {
     const errorMsg = err.stack.replace(new RegExp(`${__dirname}/`, "g"), "./");
     // client.logger.error(`Uncaught Exception: ${errorMsg}`);
-    console.error(err);
+    console.error(`Uncaught Exception: ${errorMsg}`);
     // Always best practice to let the code crash on uncaught exceptions. 
     // Because you should be catching them anyway.
     process.exit(1);
   });
 
   process.on("unhandledRejection", err => {
-    client.logger.error(`Unhandled rejection: ${err}`);
-    console.error(err);
+    // client.logger.error(`Unhandled rejection: ${err}`);
+    console.error(`Unhandled rejection: ${err}`);
   });
   
   // GAME
-  client.getRandomRarity = (rarityRate, retKey=false) => {
+  // client.getRandomRarity = (rarityRate, retKey=false) => {
+  //   let currentScore = 0 , i = 0 ;
+  //   const number = Math.floor(Math.random() * 100) + 1;
+  //   console.log ("Random number:",number) ;
+  //   console.log (rarityRate) ;
+  //   for (let key in rarityRate) {
+  //     currentScore+= parseInt (rarityRate [key]) ;
+  //     i++ ;
+  //     // console.log ("currentScore:", currentScore) ;
+  //     // console.log ("key:", key) ;
+  //     // console.log ("key:", i) ;
+  //     if (number <= currentScore) return retKey ? key : i ;
+  //   }
+  //   return -1 ;
+  // } ;
+  client.getRandomRarityForCharacter = (rarityRate, retKey=false) => {
     let currentScore = 0 , i = 0 ;
     const number = Math.floor(Math.random() * 100) + 1;
+    const orderedSearch = [
+      'high',
+      'regular',
+      'low',
+      'event'
+    ] ;
     // console.log ("Random number:",number) ;
-    for (let key in rarityRate) {
+    // console.log (rarityRate) ;
+    for (const key of orderedSearch) {
+      currentScore+= parseInt (rarityRate [key]) ;
+      i++ ;
+      // console.log ("currentScore:", currentScore) ;
+      console.log ("key:", key) ;
+      // console.log ("key:", i) ;
+      if (number <= currentScore) return retKey ? key : i ;
+    }
+    return -1 ;
+  } ;
+  client.getRandomRarityForItem = (rarityRate, retKey=false) => {
+    let currentScore = 0 , i = 0 ;
+    const number = Math.floor(Math.random() * 100) + 1;
+    const orderedSearch = [
+      'common',
+      'uncommon',
+      'rare',
+      'epic'
+    ] ;
+    // console.log ("Random number:",number) ;
+    // console.log (rarityRate) ;
+    for (const key of orderedSearch) {
       currentScore+= parseInt (rarityRate [key]) ;
       i++ ;
       // console.log ("currentScore:", currentScore) ;
@@ -276,56 +230,63 @@ module.exports = (client) => {
    "left": "#B20C20"
   } ;
   
-  client.dropCharacter = async (channel, setting, givenRarity=null, givenId=null, givenItemRarity=null) => {
-    const commandClaim = setting.commandClaim.random() ;
-    var character = givenRarity || client.getRandomRarity (setting.characterRate) ;
-    const item = givenItemRarity || client.getRandomRarity (setting.itemRate) ;
-    const guild_id = channel.guild.id ;
-    const prefix = setting.prefix || defaultSettings.prefix ;
+  client.dropCharacter = async (channel, options = {}) => {
+    const configuration = await Configuration.findOne({where: {guildId: channel.guild.id}}) ;
+    const commandClaim = configuration.commandClaim.random() ;
+    const characterRarity = options.characterRarity || client.getRandomRarityForCharacter (configuration.characterRate) ;
+    const itemRarity = options.itemRarity || client.getRandomRarityForItem (configuration.itemRate) ;
+    const givenId = options.givenId || null ;
+    const guildId = channel.guild.id ;
+    // console.log (options) ;
     const filter = async (m) => {
-      return (    m.content.startsWith (`${prefix}`)
-               && isCommandClaim (m.content.toLowerCase(), setting.commandClaim)
-               && ! await client.isBlackList (m.member, "game")
+      return (    m.content.startsWith (`-`)
+               && isCommandClaim (m.content.toLowerCase(), configuration.commandClaim)
+               && ! await client.isBlackList (m.author.id, guildId, "game")
              ) ;
       
     } ;
-    if (givenId === null && (character === -1 || item === -1)) return channel.send ({content: "An error occured ! Check your rate."}) ;
+    if (givenId === null && (characterRarity === -1 || itemRarity === -1)) throw new Error("An error occured ! Check your rates.") ;
+    const whereClausePersonnage = {} ;
     if (givenId === null) {
-      var select = "select A.`id` as characterId , A.`name` as characterName , A.`image` as characterImage , B.`id` as itemId , B.`name` as itemName , B.`rarity` as itemRarity  from `character` as A, `item` as B, `availability` as C where A.id=B.character_id and A.id=C.character_id and C.is_available=1 and A.rarity="+character+" and B.rarity="+item+" and C.guild_id="+guild_id+";" ;
+      whereClausePersonnage.rarity = characterRarity ;
+    } else {
+      whereClausePersonnage.id = givenId ;
     }
-    else {
-      var select = "select A.`id` as characterId , A.`name` as characterName , A.`image` as characterImage , A.`rarity` as characterRarity, B.`id` as itemId , B.`name` as itemName , B.`rarity` as itemRarity  from `character` as A, `item` as B, `availability` as C where A.id="+givenId+" and A.id=B.character_id and A.id=C.character_id and C.is_available=1 and B.rarity="+item+" and C.guild_id="+guild_id+";" ;
+    const personnages = await Personnage.findAll({
+      where: whereClausePersonnage,
+      include: [
+        {
+          model: Availability,
+          where: {[Op.and]: [{guildId: guildId}, {available: true}]},
+          as: 'availability'
+        },
+        {
+          model: Item,
+          where: {rarity: itemRarity}
+        }
+      ]
+    }) ;
+    // console.log (personnages) ;
+    if (!personnages.length) {
+      // console.error ("Error on dropCharacter get a character => rows = []") ;
+      // console.error ("select:\n", whereClausePersonnage) ;
+      throw new Error (`Found 0 character for ${givenId ? `id ${givenId}` : `rarity ${client.getRarityCharacter(characterRarity)}`} ! Check if series are loaded !`) ;
     }
-    var [rows,fields] =
-      await client
-            .connection
-            .promise ()
-            .execute (select) ;
-    /*
-    console.log ("select", select) ;
-    console.log ("guild_id", guild_id) ;
-    console.log ("givenId", givenId) ;
-    console.log ("character", character) ;
-    console.log ("item", item) ;
-    */
-    if (!rows.length) {
-      console.error ("Error on dropCharacter get a character => rows = []") ;
-      console.error ("select:\n", select) ;
-      return await channel.send ({content: "Found 0 character ! Check if series is loaded !"}) ;
+    const personnage = personnages.random() ; //get one among all the possibilities
+    if (typeof personnage.items === 'undefined' || personnage.items === null || !personnage.items.length)  {
+      throw new Error (`Found no item for ${personnage.name} with rarity ${client.getRarityItem(itemRarity)} ! Impossibru !`) ;
     }
-    const row = rows.random() ; //get one among all the possibilities
-    // need to redefine character
-    character = row ['characterRarity'] || character ;
-    // console.log ("character:", character) ;
-    var characterEmbed = new client.Discord.MessageEmbed()
+    const item = personnage.items[0] ;
+    console.log (`${personnage.name} s'approche.`) ;
+    console.log (`${personnage.name} apporte l'item ${item.name}#${item.id}`) ;
+    const characterEmbed = new EmbedBuilder()
                              .setColor(colors.base)
-                             .setTitle(`${row.characterName} s'approche.`)
-                             .setDescription(`${row.characterName} souhaite vous offrir quelque chose.\nTapez \`${prefix}${commandClaim}\` pour le récupérer.`)
-                             .setImage(row.characterImage)
+                             .setTitle(`${personnage.name} s'approche.`)
+                             .setDescription(`${personnage.name} souhaite vous offrir quelque chose.\nTapez \`-${commandClaim}\` pour le récupérer.`)
+                             .setImage(personnage.image)
                              ;
     const msgEmbed = await channel.send ({embeds: [characterEmbed]}) ;
-    let already = false ;
-    const collector = channel.createMessageCollector({filter, max:1, time: setting.claimTime, errors: ["time"]});
+    const collector = channel.createMessageCollector({filter, max:1, time: configuration.claimTime, errors: ["time"]});
     const handleDelete = (msg) => {
       if (msg.id === msgEmbed.id) {
         console.log ("Something deleted the character") ;
@@ -334,45 +295,94 @@ module.exports = (client) => {
       client.off ("messageDelete", handleDelete) ;
     } ;
     client.on ("messageDelete", handleDelete) ;
-    collector.on('collect', async (collected) => {
-      answer = collected.content.toLowerCase();
+    collector.on('collect', async (message) => {
+      answer = message.content.toLowerCase();
       uanswer = answer.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
-      check = `${prefix}${commandClaim.toLowerCase()}`;
+      check = `-${commandClaim.toLowerCase()}`;
       ucheck = check.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
 
       if (uanswer !== ucheck) {
         return collector.stop ("wrong answer") ;
       }
       // Add to inventory
-      const author = collected.author ;
-      [rows,fields] = await client.connection.promise().query ("select count (*) as already from wanshitong.inventory"+((character == 4)?"_event":"")+" where owner_id=? and item_id=? and guild_id=?;", [author.id, row.itemId, guild_id]) ;
-      // console.log (`for character ${character}:`, rows) ;
-      already = rows[0].already ;
-      if (! already) {
-        await client.connection.promise().execute ("insert into wanshitong.inventory"+((character === 4)?"_event":"")+" (owner_id, item_id, guild_id) values (?, ?, ?) ;", [author.id, row.itemId, guild_id]) ;
-        if (character !== 4) {
-          [rows,fields] = await client.connection.promise().query ("select items from wanshitong.gamelb where user_id=? and guild_id=?;", [author.id, guild_id]) ;
-          if (rows.length) {
-            const complete = (rows [0].items +1 == client.maxItem [guild_id]) ;
-            await client.connection.promise().execute ("update wanshitong.gamelb set items=items+1, complete=?"+(complete?", date_completed=NOW()":"")+" where user_id=? and guild_id=? ;", [complete, author.id, guild_id]) ;
-            if (complete) {
-              const roleComplete = setting.roleComplete ;
-              const role = channel.guild.roles.cache.find (r => r.name === roleComplete) ;
-              collected.member.roles.add(role).catch(console.error);
-              channel.send ({content: `Félicitations **${collected.member.displayName}** ! Ta persévérance dans la quête des nombreux artéfacts t'octroie le privilège d'intégrer les rangs de mes serviles ${role.toString()}.`}) ;
+      // console.log (message)
+      const owner = message.author ;
+      // console.log (owner.id);
+      try {
+        // console.log (owner.id);
+        // console.log (item.id);
+        const inventory = await Inventory.findOne({
+          where: {
+            [Op.and]: [{ownerId: owner.id}, {guildId: guildId}, {itemId: item.id}]
+          }
+        }) ;
+        const created = inventory === null ;
+        if (created) {
+          // insert into inventory
+          // console.log (item.id);
+          await Inventory.create(
+            {
+              ownerId: owner.id,
+              guildId: guildId,
+              itemId: item.id
             }
-          } else {
-            await client.connection.promise().execute ("insert into wanshitong.gamelb (user_id, guild_id) values (?, ?) on duplicate key update items=items ;", [author.id, guild_id]) ;
+          ) ;
+          // update leaderbord
+          const [leaderboard, createdLeaderboard] = await Leaderboard.findOrCreate({
+            where: {[Op.and]: [{ownerId: owner.id}, {guildId: guildId}]},
+            defaults: {
+              ownerId: owner.id,
+              guildId: guildId
+            }
+          }) ;
+          // console.log (leaderboard) ;
+          await leaderboard.update({
+            items: leaderboard.items+1
+          }) ;
+          // check if complete
+          const allItems = await Item.count({
+            include: {
+              model: Personnage,
+              required: true,
+              include: {
+                model: Availability,
+                where: {[Op.and]: [{guildId: guildId}, {available: true}]},
+                as: 'availability',
+                required: true
+              }
+            }
+          }) ;
+          if (leaderboard.items == allItems) {
+            // COMPLETED
+            await leaderboard.update({
+              completed: true
+            }) ;
+            const roleComplete = configuration.roleComplete ;
+            if (roleComplete !== null) {
+              const role = await channel.guild.roles.cache.find (r => r.id === roleComplete) ;
+              await channel.send(`Félicitations **${owner}** ! Ta persévérance dans la quête des nombreux artéfacts t'octroie le privilège d'intégrer les rangs de mes serviles ${role}.`) ;
+            } else {
+              await channel.send(`Félicitations **${owner}** !`) ;
+            }
           }
         }
+        // const inventoryTest = await Inventory.findOne({
+        //   where: {
+        //     [Op.and]: [{ownerId: owner.id}, {guildId: guildId}, {itemId: item.id}]
+        //   }
+        // }) ;
+        // console.log (inventoryTest);
+        characterEmbed
+          .setTitle (`${personnage.name} repart.`)
+          .setDescription (`<@${owner.id}> ${personnage.name} t'a offert ${item.name}.\n${client.getRarityEmoji(itemRarity)} C'est un objet **${client.getRarityItem(itemRarity).lowerCaseFirstLetter()}** ${client.getRarityEmoji(itemRarity)}. ${!created?"\n*Vous lui rendez parce que vous l'avez déjà.*":""}`)
+          .setColor (colors[itemRarity]) ;
+        msgEmbed.edit ({embeds: [characterEmbed]}) ;
+        collector.stop ("claimed") ;
+      } catch (err) {
+        collector.stop ("wrong answer") ;
+        throw new Error (err) ;
       }
-      characterEmbed
-        .setTitle (`${row.characterName} repart.`)
-        .setDescription (`<@${author.id}> ${row.characterName} t'a offert ${row.itemName}.\n${client.getRarityEmoji(item)} C'est un objet **${client.getRarityItem(item).lowerCaseFirstLetter()}** ${client.getRarityEmoji(item)}. ${already?"\n*Vous lui rendez parce que vous l'avez déjà.*":""}`)
-        .setColor (colors[item]) ;
-      msgEmbed.edit ({embeds: [characterEmbed]}) ;
-      collector.stop ("claimed") ;
-    });
+    }) ;
     
     collector.on('end', (collected, reason) => {
       if (reason == "erased") {
@@ -385,7 +395,7 @@ module.exports = (client) => {
       let msgCollected = collected.first() ;
       if ((reason === "time") || (reason === "wrong answer")) {
         characterEmbed
-          .setTitle (`${row.characterName} disparaît.`) // est parti·e
+          .setTitle (`${personnage.name} disparaît.`) // est parti·e
           .setDescription (`${(reason === "time")?"Oh non, vous n'avez pas été assez rapide !":"Ce n'était pas la réponse attendue !"}`)
           .setColor (colors.left) ;
         msgEmbed.edit ({embeds: [characterEmbed]}) ;
@@ -416,21 +426,20 @@ module.exports = (client) => {
     return isIt ;
   }
   
-  client.isBlackList = async (member, command) => {
+  client.isBlackList = async (memberId, guildId, command) => {
     const user = await Blacklist.findOne({where: {[Op.and]: [
-      {user_id: member.id},
-      {guild_id: member.guild.id},
+      {userId: memberId},
+      {guildId: guildId},
       {command: command}
     ]}});
-    console.log (user) ;
     return user !== null ;
   }
 
-  client.populateMaxItem = async (guild_id) => {
-    client.connection.execute ("select count(*) as allItems from `item` as A, `character` as B, `availability` as C where A.character_id=B.id and C.character_id=B.id and C.is_available=1 and B.rarity<>4 and C.guild_id="+guild_id+";", (err, rows) => {
+  client.populateMaxItem = async (guildId) => {
+    client.connection.execute ("select count(*) as allItems from `item` as A, `character` as B, `availability` as C where A.characterId=B.id and C.characterId=B.id and C.is_available=1 and B.rarity<>4 and C.guildId="+guildId+";", (err, rows) => {
       if (err) console.log ("err on function::populateMaxItem:",err) ;
       if (rows && rows.length) {
-        client.maxItem [guild_id] = rows [0].allItems ;
+        client.maxItem [guildId] = rows [0].allItems ;
       }
     });
   }
