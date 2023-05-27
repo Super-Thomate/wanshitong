@@ -26,6 +26,7 @@ const data = new SlashCommandBuilder()
         .addNumberOption(option => option.setName('itemid').setDescription('Item id').setMinValue(1).setRequired(true))
         .addUserOption(option => option.setName('member').setDescription('Not required').setRequired(false))
     )
+    .setDMPermission(false)
     ;
 
 module.exports = {

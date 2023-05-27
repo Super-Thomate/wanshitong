@@ -84,6 +84,7 @@ const data = new SlashCommandBuilder()
             .setRequired(true)
         )
     )
+    .setDMPermission(false)
     ;
 
 

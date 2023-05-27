@@ -65,6 +65,7 @@ const data = new SlashCommandBuilder()
             .setRequired(false)
         )
     )
+    .setDMPermission(false)
     ;
 
 module.exports = {

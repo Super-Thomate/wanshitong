@@ -44,6 +44,7 @@ const data = new SlashCommandBuilder()
         .setName('list')
         .setDescription('List all characters loaded')
     )
+    .setDMPermission(false)
     ;
 
 

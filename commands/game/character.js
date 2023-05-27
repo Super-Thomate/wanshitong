@@ -42,6 +42,7 @@ const data = new SlashCommandBuilder()
             .setMinValue(1)
         )
     )
+    .setDMPermission(false)
     ;
 
 module.exports = {

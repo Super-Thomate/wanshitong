@@ -6,6 +6,7 @@ const path = require('node:path');
 const data = new SlashCommandBuilder()
     .setName('help')
     .setDescription('Display help for the bot')
+    .setDMPermission(false)
     ;
 
 module.exports = {

@@ -7,6 +7,7 @@ const fs = require('node:fs') ;
 const data = new SlashCommandBuilder()
     .setName('leaderboard')
     .setDescription('Display the leaderboard')
+    .setDMPermission(false)
     ;
 
 const emojiCompleted = '🦊️' ;

@@ -14,6 +14,7 @@ const data = new SlashCommandBuilder()
         .setDescription('Disply only items from specific serie or event')
         .setRequired(false)
     )
+    .setDMPermission(false)
     ;
 
 const getFields = (personnages, max, client) => {
