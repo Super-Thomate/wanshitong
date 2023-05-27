@@ -18,6 +18,7 @@ const getFields = async (leaderboard, max, guild) => {
   const allItems = await Item.count({
     include: {
       model: Personnage,
+      where: {rarity: {[Op.not]: 4}}, // event excluded
       required: true,
       include: {
         model: Availability,
