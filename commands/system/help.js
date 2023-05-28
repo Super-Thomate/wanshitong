@@ -80,10 +80,10 @@ module.exports = {
                 console.log (option);
               if (Array.isArray(option.options) && option.options.length) {
                 option.options.forEach(op => {
-                  line += ` ${op.required ? '' : '['}${op.name}${op.required ? '' : ']'}` ;
+                  line += ` ${op.required ? '' : '['}<${op.name}>${op.required ? '' : ']'}` ;
                 }) ;
               }
-              embedHelp.fields.push({name: `/${command.name} ${(option.type > 2 && !option.required) ? '[' : ''}${option.name}${(option.type > 2 && !option.required) ? ']' : ''} ${line}`, value: option.description}) ;
+              embedHelp.fields.push({name: `/${command.name} ${(option.type > 2) ? option.required ? `<${option.name}>` : `[<${option.name}>]` : option.name} ${line}`, value: option.description}) ;
               // message += `${line}${" ".repeat(Math.max(0, maxLength - line.length))} :: ${option.description}\n` ;
             }
             if (! embedHelp.fields.length) {
