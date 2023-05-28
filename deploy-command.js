@@ -34,7 +34,7 @@ const global = process.argv.includes('--global') || process.argv.includes('-g');
 (async () => {
   try {
     console.log(`Started refreshing ${commands.length} application (/) commands.`);
-
+    await  rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: [] });
     // The put method is used to fully refresh all commands in the guild with the current set
     const data = await rest.put(
       global ? Routes.applicationCommands(clientId) : Routes.applicationGuildCommands(clientId, guildId), // , for global deployment

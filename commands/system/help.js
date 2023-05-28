@@ -20,6 +20,7 @@ module.exports = {
   async execute(interaction) {
     await interaction.deferReply();
     const commandGiven = interaction.options.getString('command');
+    console.log (interaction.client.commands) ;
     // Reading the commands
     const foldersPath = path.join(__dirname, '..');
     // console.log (foldersPath) ;
