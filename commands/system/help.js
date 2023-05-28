@@ -31,7 +31,7 @@ module.exports = {
         const command = require(filePath);
         if ('data' in command) {
           // message += `${command.data.name} :: ${command.data.description}\n` ;
-          // console.log (command.data) ;
+          // console.log (command) ;
           maxLength = Math.max(maxLength, command.data.name.length);
           commandsFields.push({
             name: command.data.name,
