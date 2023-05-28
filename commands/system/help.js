@@ -72,7 +72,7 @@ module.exports = {
             embedHelp.description = command.description ;
             // const maxLength = 40 ;
             // console.log ('give character <characterid> [<member>]'.length);
-            console.log (JSON.stringify(command, null, 2)) ;
+            // console.log (JSON.stringify(command, null, 2)) ;
             // message += `\n== ${command.name.toProperCase()} ==\n` ;
             for (const option of command.options) {
               var line = '' ;
