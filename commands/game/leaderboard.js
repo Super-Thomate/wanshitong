@@ -45,6 +45,7 @@ const getFields = async (leaderboard, max, guild) => {
 }
 
 module.exports = {
+  category: 'game',
   data: data,
   async execute(interaction) {
     await interaction.deferReply();

@@ -69,6 +69,7 @@ const data = new SlashCommandBuilder()
     ;
 
 module.exports = {
+  category: 'game',
   data: data,
   async execute(interaction) {
     await interaction.deferReply();

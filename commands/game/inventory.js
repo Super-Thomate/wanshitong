@@ -74,6 +74,7 @@ const getFields = (personnages, max, client) => {
 const iconEvent = '🎉' ;
 
 module.exports = {
+  category: 'game',
   data: data,
   async execute(interaction) {
     await interaction.deferReply();

@@ -15,6 +15,7 @@ const data = new SlashCommandBuilder()
     ;
 
 module.exports = {
+  category: 'system',
   data: data,
   async execute(interaction) {
     await interaction.deferReply();

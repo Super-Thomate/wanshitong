@@ -155,6 +155,7 @@ const data = new SlashCommandBuilder()
     ;
 
 module.exports = {
+  category: 'settings',
   data: data,
   async execute(interaction) {
     await interaction.deferReply();
