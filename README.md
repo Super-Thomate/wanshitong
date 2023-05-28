@@ -5,6 +5,8 @@ Discord bot for collecting items
 
 Execute `node dbInit.js` to initialize the database and populate it with predefined characters (courtesy of Realms of Fantasy).
 
+Execute `node deploy-command.js -g` to deploy the commands for all guilds of your bot. If you execute `node deploy-command.js` this will only deploy the commands for the guild defined in `config.json`
+
 ## Help
 Use `/help` to view all commands, and `/help <command>` to view every subcommand an options for `<command>`.
 
