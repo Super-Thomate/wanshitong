@@ -45,7 +45,7 @@ module.exports = {
     if (message.interaction === null && !message.content.startsWith('-')) { // just in case check this is a genuine message
       const drop = Math.floor(Math.random() * 100) + 1;
       const canDrop = (typeof message.client.alreadyDropped === 'undefined' || typeof message.client.alreadyDropped [message.guild.id] === "undefined" || message.client.alreadyDropped [message.guild.id] === null) ;
-      console.log (`Can dropped: ${canDrop}`);
+      console.log (`Can drop: ${canDrop}`);
       if (drop <= configuration.occuranceDrop && canDrop) {
         if (typeof message.client.alreadyDropped === 'undefined') {
           message.client.alreadyDropped = {} ;
@@ -61,7 +61,7 @@ module.exports = {
            await message.client.dropCharacter (dropChannel) ;
           } catch (dropErr) {
             await dropChannel.send({content: dropErr.message}) ;
-            console.log (`DROP ERROR: ${dropErr}`) ;
+            console.error (`DROP ERROR: ${dropErr}`) ;
             message.client.alreadyDropped [message.guildId] = null ; // Clear
           }
         } catch (err) {
