@@ -51,7 +51,7 @@ module.exports = {
     const maxPerPage = 10 ;
     const leaderboard = await Leaderboard.findAll({
       where: {guildId: interaction.guildId},
-      order: [['items', 'ASC']]
+      order: [['items', 'DESC']]
     });
     // console.log(leaderboard) ;
     const embedLeaderboard = {
