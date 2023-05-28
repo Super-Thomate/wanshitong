@@ -2,6 +2,7 @@
 Discord bot for collecting items
 
 ## Installation
+Create a file `config.json` with informations as shown in `config.json.example`.
 
 Execute `node dbInit.js` to initialize the database and populate it with predefined characters (courtesy of Realms of Fantasy).
 

@@ -1,0 +1,9 @@
+{
+  "token": "BOTTOKEN",
+  "clientId": "BOTCLIENTID",
+  "guildId": "GUILD",
+  "database": "postgresql_database",
+  "user": "postgresql_user",
+  "password": "postgresql_password",
+  "host": "postgresql_host"
+}
