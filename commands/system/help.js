@@ -31,6 +31,7 @@ module.exports = {
         const command = require(filePath);
         if ('data' in command) {
           // message += `${command.data.name} :: ${command.data.description}\n` ;
+          // console.log (command.data) ;
           maxLength = Math.max(maxLength, command.data.name.length);
           commandsFields.push({
             name: command.data.name,
@@ -40,11 +41,11 @@ module.exports = {
       }
       allFields.set (folder, commandsFields);
     }
-    console.log(maxLength) ;
+    // console.log(maxLength) ;
     // console.log(allFields) ;
     allFields.forEach((commandsFields, folder) => {
       // console.log (folder) ;
-      console.log (commandsFields) ;
+      // console.log (commandsFields) ;
       message += `\n== ${folder.toProperCase()} ==\n` ;
       for (const command of commandsFields) {
         message += `${command.name}${" ".repeat(maxLength - command.name.length)} :: ${command.description}\n` ;
