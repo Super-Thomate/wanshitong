@@ -11,7 +11,7 @@ const data = new SlashCommandBuilder()
     .addStringOption(option => 
       option
         .setName('serie')
-        .setDescription('Disply only items from specific serie or event')
+        .setDescription('Display only items from specific serie or event')
         .setRequired(false)
     )
     .setDMPermission(false)
