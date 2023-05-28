@@ -44,9 +44,9 @@ module.exports = {
     // CHARACTER DROP
     if (message.interaction === null && !message.content.startsWith('-')) { // just in case check this is a genuine message
       const drop = Math.floor(Math.random() * 100) + 1;
-      const alreadyDropped = (typeof message.client.alreadyDropped === 'undefined' || typeof message.client.alreadyDropped [message.guild.id] === "undefined" || message.client.alreadyDropped [message.guild.id] === null) ;
-      console.log (`Already dropped: ${alreadyDropped}`);
-      if (drop <= configuration.occuranceDrop && alreadyDropped) {
+      const canDrop = (typeof message.client.alreadyDropped === 'undefined' || typeof message.client.alreadyDropped [message.guild.id] === "undefined" || message.client.alreadyDropped [message.guild.id] === null) ;
+      console.log (`Can dropped: ${canDrop}`);
+      if (drop <= configuration.occuranceDrop && canDrop) {
         if (typeof message.client.alreadyDropped === 'undefined') {
           message.client.alreadyDropped = {} ;
         }
