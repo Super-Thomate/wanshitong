@@ -80,6 +80,10 @@ module.exports = {
     if (typeof(dropChannel) === 'undefined' || dropChannel === null) {
       return await interaction.editReply('No channel set for character drop.') ;
     }
+    const canDrop = (typeof message.client.alreadyDropped === 'undefined' || typeof message.client.alreadyDropped [message.guild.id] === "undefined" || message.client.alreadyDropped [message.guild.id] === null) ;
+    if(!canDrop) {
+      return await interaction.editReply('A character is already there, cannot drop.') ;
+    }
     if (typeof interaction.client.alreadyDropped === 'undefined') {
       interaction.client.alreadyDropped = {} ;
     }
