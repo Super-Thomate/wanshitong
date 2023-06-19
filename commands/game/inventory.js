@@ -102,12 +102,12 @@ module.exports = {
           model: Personnage,
           required: true,
           where: wherePersonnage,
-          // include: {
-          //   model: Availability,
-          //   as: 'availability',
-          //   where: {[Op.and]: [{guildId: interaction.guildId},{available: true}]},
-          //   required: true
-          // }
+          include: {
+            model: Availability,
+            as: 'availability',
+            where: {[Op.and]: [{guildId: interaction.guildId},{available: true}]},
+            required: true
+          }
         }
       }
     }) ;
