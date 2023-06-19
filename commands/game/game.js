@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, codeBlock } = require('discord.js');
-const {Personnage, Item, Availability} = require('../../dbObjects.js');
+const {Personnage, Item, Availability, Inventory, Leaderboard} = require('../../dbObjects.js');
 const { Op } = require("sequelize");
 
 
@@ -79,6 +79,17 @@ module.exports = {
             // console.log (JSON.stringify(availability, null, 2)) ;
         }
         await interaction.editReply(`${serie} ${available?'':'un'}loaded.`);
+        // recalculer le leaderboard
+        const leaderboard = await Leaderboard.findAll({
+          where: {guildId: interaction.guildId},
+          order: [['items', 'DESC']]
+        });
+        for (const row of leaderboard) {
+          const trueNumberOfItems = await getInventoryCount(interaction.guildId, row.ownerId) ;
+          if(trueNumberOfItems !== row.items) {
+            console.log ('Difference !') ;
+          }
+        }
       } catch (err) {
         console.error(err) ;
         await interaction.editReply(`An error occured while trying to load or unload ${serie}.`);
@@ -126,4 +137,29 @@ module.exports = {
       await interaction.editReply(messageContent);
     }
   }
+}
+
+const getInventoryCount = async (guildId, ownerId) => {
+  return await Inventory.count({
+    where: {[Op.and]:[
+      {guildId: guildId},
+      {ownerId: ownerId}
+    ]},
+    include: {
+      model: Item,
+      as: 'item',
+      required: true,
+      include: {
+        model: Personnage,
+        required: true,
+        where: {[Op.not]: 4},
+        include: {
+          model: Availability,
+          as: 'availability',
+          where: {[Op.and]: [{guildId: guildId},{available: true}]},
+          required: true
+        }
+      }
+    }
+  }) ;
 }
