@@ -156,7 +156,7 @@ const getInventoryCount = async (guildId, ownerId) => {
       include: {
         model: Personnage,
         required: true,
-        where: {[Op.not]: 4},
+        where: {rarity: {[Op.not]: 4}},
         include: {
           model: Availability,
           as: 'availability',
