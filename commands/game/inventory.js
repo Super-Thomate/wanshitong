@@ -153,13 +153,13 @@ module.exports = {
         .setLabel('Previous page')
         .setStyle(ButtonStyle.Success);
 
-        const end = new ButtonBuilder()
-          .setCustomId('end')
-          .setLabel('Close ❌')
-          .setStyle(ButtonStyle.Secondary);
+        // const end = new ButtonBuilder()
+        //   .setCustomId('end')
+        //   .setLabel('Close ❌')
+        //   .setStyle(ButtonStyle.Secondary);
       
       const actionRow = new ActionRowBuilder()
-        .addComponents(previous, next, end)
+        .addComponents(previous, next)
         ;
       const response = await interaction.editReply({embeds: [embedInventory], components: [actionRow]});
       const collectorFilter = i => i.user.id === interaction.user.id;
