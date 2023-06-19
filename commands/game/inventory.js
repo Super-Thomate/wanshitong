@@ -108,7 +108,13 @@ module.exports = {
     const personnages = await Personnage.findAll({
       where: wherePersonnage,
       order: [['serie', 'ASC'],['name', 'ASC'],[{model: Item}, 'rarity', 'ASC']],
-      include: {
+      include: [{
+        model: Availability,
+        as: 'availability',
+        where: {[Op.and]: [{guildId: interaction.guildId},{available: true}]},
+        required: true
+      },
+      {
         model: Item,
         required: true,
         // order: [['rarity', 'ASC']],
@@ -118,12 +124,12 @@ module.exports = {
           where: {[Op.and]: [{guildId: interaction.guildId},{ownerId: interaction.member.id}]},
           required: true
         }
-      }
+      }]
     });
     // console.log(inventory);
     // return await interaction.editReply('DEBUG');
     // console.log(inventory.length);
-    // console.log(personnages);
+    console.log(personnages);
     const numPage = Math.ceil (inventory / maxPerPage) || 1 ;
     const embedInventory = {
       color: 0xDDA624,
