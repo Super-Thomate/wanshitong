@@ -132,7 +132,7 @@ module.exports = {
         }
       }]
     });
-    // console.log(inventory);
+    console.log(inventory);
     // return await interaction.editReply('DEBUG');
     // console.log(inventory.length);
     // console.log(personnages);
