@@ -133,6 +133,7 @@ module.exports = {
       }]
     });
     console.log(inventory);
+    console.log(wherePersonnage);
     // return await interaction.editReply('DEBUG');
     // console.log(inventory.length);
     // console.log(personnages);
