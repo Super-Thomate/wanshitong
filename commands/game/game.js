@@ -89,7 +89,7 @@ module.exports = {
           if(trueNumberOfItems !== row.items) {
             // console.log ('Difference !') ;
             await Leaderboard.update({items: trueNumberOfItems}, {
-              where: {[Op.and]: [{ownerId: row.ownerId}, {guildId: guildId}]}
+              where: {[Op.and]: [{ownerId: row.ownerId}, {guildId: interaction.guildId}]}
             });
           }
         }
