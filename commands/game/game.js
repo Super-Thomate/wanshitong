@@ -87,7 +87,10 @@ module.exports = {
         for (const row of leaderboard) {
           const trueNumberOfItems = await getInventoryCount(interaction.guildId, row.ownerId) ;
           if(trueNumberOfItems !== row.items) {
-            console.log ('Difference !') ;
+            // console.log ('Difference !') ;
+            await Leaderboard.update({items: trueNumberOfItems}, {
+              where: {[Op.and]: [{ownerId: owner.id}, {guildId: guildId}]}
+            });
           }
         }
       } catch (err) {
