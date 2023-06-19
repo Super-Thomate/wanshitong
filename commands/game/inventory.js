@@ -101,7 +101,13 @@ module.exports = {
         include: {
           model: Personnage,
           required: true,
-          where: wherePersonnage
+          where: wherePersonnage,
+          // include: {
+          //   model: Availability,
+          //   as: 'availability',
+          //   where: {[Op.and]: [{guildId: interaction.guildId},{available: true}]},
+          //   required: true
+          // }
         }
       }
     }) ;
@@ -128,8 +134,8 @@ module.exports = {
     });
     // console.log(inventory);
     // return await interaction.editReply('DEBUG');
-    // console.log(inventory.length);
-    console.log(personnages);
+    console.log(inventory.length);
+    // console.log(personnages);
     const numPage = Math.ceil (inventory / maxPerPage) || 1 ;
     const embedInventory = {
       color: 0xDDA624,
