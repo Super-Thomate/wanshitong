@@ -79,7 +79,7 @@ module.exports = {
             // console.log (JSON.stringify(availability, null, 2)) ;
         }
         await interaction.editReply(`${serie} ${available?'':'un'}loaded.`);
-        // recalculer le leaderboard
+        // redo leaderboard
         const leaderboard = await Leaderboard.findAll({
           where: {guildId: interaction.guildId},
           order: [['items', 'DESC']]
@@ -87,8 +87,8 @@ module.exports = {
         for (const row of leaderboard) {
           const trueNumberOfItems = await getInventoryCount(interaction.guildId, row.ownerId) ;
           if(trueNumberOfItems !== row.items) {
-            console.log ('Difference !') ;
-            console.log (`Get ${row.items}, awaiting ${trueNumberOfItems}`) ;
+          //   console.log ('Difference !') ;
+          //   console.log (`Get ${row.items}, awaiting ${trueNumberOfItems}`) ;
             await Leaderboard.update({items: trueNumberOfItems}, {
               where: {[Op.and]: [{ownerId: row.ownerId}, {guildId: interaction.guildId}]}
             });
