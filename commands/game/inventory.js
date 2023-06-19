@@ -101,14 +101,26 @@ module.exports = {
         include: {
           model: Personnage,
           required: true,
-          where: wherePersonnage
+          where: wherePersonnage,
+          include: {
+            model: Availability,
+            as: 'availability',
+            where: {[Op.and]: [{guildId: interaction.guildId},{available: true}]},
+            required: true
+          }
         }
       }
     }) ;
     const personnages = await Personnage.findAll({
       where: wherePersonnage,
       order: [['serie', 'ASC'],['name', 'ASC'],[{model: Item}, 'rarity', 'ASC']],
-      include: {
+      include: [{
+        model: Availability,
+        as: 'availability',
+        where: {[Op.and]: [{guildId: interaction.guildId},{available: true}]},
+        required: true
+      },
+      {
         model: Item,
         required: true,
         // order: [['rarity', 'ASC']],
@@ -118,9 +130,10 @@ module.exports = {
           where: {[Op.and]: [{guildId: interaction.guildId},{ownerId: interaction.member.id}]},
           required: true
         }
-      }
+      }]
     });
     // console.log(inventory);
+    // console.log(wherePersonnage);
     // return await interaction.editReply('DEBUG');
     // console.log(inventory.length);
     // console.log(personnages);
