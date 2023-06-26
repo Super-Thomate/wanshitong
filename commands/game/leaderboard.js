@@ -34,8 +34,13 @@ const getFields = async (leaderboard, max, guild) => {
       allFields[currentPage] = [] ;
     }
     // const guildMember = await guild.members.cache.find(u => u.id == row.ownerId) ;
-    const guildMember = await guild.members.fetch(row.ownerId) ;
-    allFields[currentPage].push({name: `${currentPage*max+currentRow+1}. ${row.completed ? emojiCompleted : '' } ${guildMember ? guildMember.displayName : 'NONAME'} (${guildMember ? guildMember.user.username : ''})`, value: `Items : ${row.items}/${allItems}`}) ;
+    try {
+      const guildMember = await guild.members.fetch(row.ownerId) ;
+      allFields[currentPage].push({name: `${currentPage*max+currentRow+1}. ${row.completed ? emojiCompleted : '' } ${guildMember ? guildMember.displayName : 'NONAME'} (${guildMember ? guildMember.user.username : ''})`, value: `Items : ${row.items}/${allItems}`}) ;
+    } catch (error) {
+      const guildMember = await guild.members.fetch(row.ownerId) ;
+    allFields[currentPage].push({name: `${currentPage*max+currentRow+1}. ${row.completed ? emojiCompleted : '' } NONAME ()`, value: `Items : ${row.items}/${allItems}`}) ;
+    }
     currentRow++ ;
     if (currentRow == max) {
       currentRow = 0 ;
