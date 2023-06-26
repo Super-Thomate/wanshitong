@@ -109,7 +109,7 @@ const datas = [
     ]
   },
 ] ;
-sequelize.sync({ force }).then(async () => {
+sequelize.sync({ force: false }).then(async () => {
   for (const data of datas) {
     // const data = datas [key];
     // personnages.push(Personnage.upsert({serie: data.set, name: data.name, image: data.image, rarity: data.rarity})) ;
