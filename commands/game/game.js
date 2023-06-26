@@ -136,12 +136,12 @@ module.exports = {
       }
       if (body.length <= 1900) {
         const messageContent = codeBlock ("asciidoc", 
-        `= Characters loaded =\n${body.length ? body : 'No characters loaded'}`
+        `= ${loaded.length} Characters loaded =\n${body.length ? body : 'No characters loaded'}`
         );
         await interaction.editReply(messageContent);
       } else {
         const messageContent = codeBlock ("asciidoc", 
-        `= Characters loaded =\n${body.substring(0,1900)}...`
+        `= ${loaded.length} Characters loaded =\n${body.substring(0,1900)}...`
         );
         await interaction.editReply(messageContent);
       }
