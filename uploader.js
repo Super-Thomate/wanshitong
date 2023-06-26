@@ -57,6 +57,68 @@ fs.createReadStream('availability.csv')
     }).catch(console.error);
   });
 
+const datasInventory = [] ;
+fs.createReadStream('inventory.csv')
+  .pipe(csv({
+    separator: ";"
+  }))
+  .on('data', (row) => {
+    datasInventory.push({
+      ownerId: row ["owner_id"],
+      guildId: row ["guild_id"],
+      itemId: row ["item_id"],
+    }) ;
+    // console.log(row) ;
+  })
+  .on('end', () => {
+    console.log('CSV file successfully processed');
+    console.log('Syncing database');
+    sequelize.sync({ force }).then(async () => {
+      for (const data of datasInventory) {
+        // const data = datas [key];
+        // personnages.push(Personnage.upsert({serie: data.set, name: data.name, image: data.image, rarity: data.rarity})) ;
+        const [inventory, createdInventory] = await Inventory.upsert({guildId: data.guildId, itemId: data.itemId, ownerId: data.ownerId}) ;
+      }
+    
+      // await Promise.all(personnages);
+      // await Promise.all(items);
+      console.log('Database synced');
+    
+      sequelize.close();
+    }).catch(console.error);
+  });
+
+const datasLeaderboard = [] ;
+fs.createReadStream('gamelb.csv')
+  .pipe(csv({
+    separator: ";"
+  }))
+  .on('data', (row) => {
+    datasLeaderboard.push({
+      ownerId: row ["user_id"],
+      items: row ["items"],
+      guildId: row ["guild_id"],
+      completed: row ["complete"],
+    }) ;
+    // console.log(row) ;
+  })
+  .on('end', () => {
+    console.log('CSV file successfully processed');
+    console.log('Syncing database');
+    sequelize.sync({ force }).then(async () => {
+      for (const data of datasLeaderboard) {
+        // const data = datas [key];
+        // personnages.push(Personnage.upsert({serie: data.set, name: data.name, image: data.image, rarity: data.rarity})) ;
+        const [leaderboard, createdLeaderboard] = await Leaderboard.upsert({guildId: data.guildId, completed: data.completed, ownerId: data.ownerId, items: data.items}) ;
+      }
+    
+      // await Promise.all(personnages);
+      // await Promise.all(items);
+      console.log('Database synced');
+    
+      sequelize.close();
+    }).catch(console.error);
+  });
 
 function getRarityCharacter (rarity) {
   return ["high", "regular", "low", "event"].indexOf (rarity)+1 ;
