@@ -52,7 +52,7 @@ fs.createReadStream('wst.csv')
           // const data = datas [key];
           // personnages.push(Personnage.upsert({serie: data.set, name: data.name, image: data.image, rarity: data.rarity})) ;
           const [personnage, createdPersonnage] = await Personnage.upsert({serie: data.set, name: data.name, image: data.image, rarity: data.rarity}) ;
-          console.log(personnage);
+          // console.log(personnage);
           const [itemCommon, createdItemCommon] = await Item.upsert({name: data.itemCommon, rarity: 1, personnageId: personnage.id}, {include: Personnage}) ;
           // console.log(itemCommon);
           const [itemUncommon, createdItemUncommon] = await Item.upsert({name: data.itemUncommon, rarity: 2, personnageId: personnage.id}, {include: Personnage}) ;
