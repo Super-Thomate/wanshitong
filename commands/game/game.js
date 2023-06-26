@@ -134,11 +134,17 @@ module.exports = {
         // console.log (available.personnage);
         body +=`* [${interaction.client.getRarityCharacter (available.personnage.rarity)}] ${available.personnage.name}#${available.personnage.id}\n` ;
       }
-      console.log (`= Characters loaded =\n${body.length ? body : 'No characters loaded'}`.length) ;
-      const messageContent = codeBlock ("asciidoc", 
-      `= Characters loaded =\n${body.length ? body : 'No characters loaded'}`
-      );
-      await interaction.editReply(messageContent);
+      if (body.length <= 1900) {
+        const messageContent = codeBlock ("asciidoc", 
+        `= Characters loaded =\n${body.length ? body : 'No characters loaded'}`
+        );
+        await interaction.editReply(messageContent);
+      } else {
+        const messageContent = codeBlock ("asciidoc", 
+        `= Characters loaded =\n${body.substring(0,1900)}...`
+        );
+        await interaction.editReply(messageContent);
+      }
     }
   }
 }
