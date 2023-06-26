@@ -134,7 +134,7 @@ module.exports = {
         // console.log (available.personnage);
         body +=`* [${interaction.client.getRarityCharacter (available.personnage.rarity)}] ${available.personnage.name}#${available.personnage.id}\n` ;
       }
-      
+      console.log (`= Characters loaded =\n${body.length ? body : 'No characters loaded'}`.length) ;
       const messageContent = codeBlock ("asciidoc", 
       `= Characters loaded =\n${body.length ? body : 'No characters loaded'}`
       );
