@@ -53,7 +53,7 @@ fs.createReadStream('availability.csv')
       // await Promise.all(items);
       console.log('Database synced');
     
-      sequelize.close();
+      // sequelize.close();
     }).catch(console.error);
   });
 
@@ -84,7 +84,7 @@ fs.createReadStream('inventory.csv')
       // await Promise.all(items);
       console.log('Database synced');
     
-      sequelize.close();
+      // sequelize.close();
     }).catch(console.error);
   });
 
@@ -116,7 +116,7 @@ fs.createReadStream('gamelb.csv')
       // await Promise.all(items);
       console.log('Database synced');
     
-      sequelize.close();
+      // sequelize.close();
     }).catch(console.error);
   });
 
