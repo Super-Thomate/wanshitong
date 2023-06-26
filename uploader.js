@@ -29,7 +29,7 @@ const force = process.argv.includes('--force') || process.argv.includes('-f');
 const datas = [] ;
 fs.createReadStream('availability.csv')
   .pipe(csv({
-    separator: ";"
+    separator: "; "
   }))
   .on('data', (row) => {
     // datas.push({
