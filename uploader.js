@@ -29,50 +29,32 @@ const force = process.argv.includes('--force') || process.argv.includes('-f');
 const datas = [] ;
 fs.createReadStream('availability.csv')
   .pipe(csv({
-    separator: "; "
+    separator: ";"
   }))
   .on('data', (row) => {
-    // datas.push({
-    //   name: row ["Perso"],
-    //   set: row ["serie"],
-    //   image: row ["URL image"],
-    //   rarity: getRarityCharacter (row ["classe"]),
-    //   itemCommon: row ["Commun"],
-    //   itemUncommon: row ["Non-commun"],
-    //   itemRare: row ["Rare"],
-    //   itemEpic: row ["Épique"],
-    //   current: row ["#"]
-    // }) ;
-    console.log(row)
+    datas.push({
+      personnageId: row ["character_id"],
+      guildId: row ["guild_id"],
+      available: row ["is_available"],
+    }) ;
+    // console.log(row) ;
   })
   .on('end', () => {
     console.log('CSV file successfully processed');
     console.log('Syncing database');
-    // sequelize.sync({ force }).then(async () => {
-    //   if (force) {
-    //     // console.log (datas.length)
-    //     for (const data of datas) {
-    //       // const data = datas [key];
-    //       // personnages.push(Personnage.upsert({serie: data.set, name: data.name, image: data.image, rarity: data.rarity})) ;
-    //       const [personnage, createdPersonnage] = await Personnage.upsert({serie: data.set, name: data.name, image: data.image, rarity: data.rarity}) ;
-    //       // console.log(personnage);
-    //       const [itemCommon, createdItemCommon] = await Item.upsert({name: data.itemCommon, rarity: 1, personnageId: personnage.id}, {include: Personnage}) ;
-    //       // console.log(itemCommon);
-    //       const [itemUncommon, createdItemUncommon] = await Item.upsert({name: data.itemUncommon, rarity: 2, personnageId: personnage.id}, {include: Personnage}) ;
-    //       // console.log(itemUncommon);
-    //       const [itemRare, createdItemRare] = await Item.upsert({name: data.itemRare, rarity: 3, personnageId: personnage.id}, {include: Personnage}) ;
-    //       // console.log(itemRare);
-    //       const [itemEpic, createdItemEpic] = await Item.upsert({name: data.itemEpic, rarity: 4, personnageId: personnage.id}, {include: Personnage}) ;
-    //       // console.log(itemEpic);
-    //     }
-    //   }
+    sequelize.sync({ force }).then(async () => {
+      for (const data of datas) {
+        // const data = datas [key];
+        // personnages.push(Personnage.upsert({serie: data.set, name: data.name, image: data.image, rarity: data.rarity})) ;
+        const [availability, createdAvailability] = await Availability.upsert({guildId: data.guildId, available: data.available, personnageId: data.personnageId}) ;
+      }
     
-    //   // await Promise.all(personnages);
-    //   // await Promise.all(items);
-    //   console.log('Database synced');
+      // await Promise.all(personnages);
+      // await Promise.all(items);
+      console.log('Database synced');
     
-    //   sequelize.close();
-    // }).catch(console.error);
+      sequelize.close();
+    }).catch(console.error);
   });
 
 
